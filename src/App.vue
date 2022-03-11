@@ -56,7 +56,7 @@ export default defineComponent({
     const inputUrl = ref('')
     const bgColor = ref('#000')
     const spacing = ref(150)
-    const canvasSize = ref(450)
+    const canvasSize = ref(600) // 4x spacing makes things look ok
     const imagesSize = ref(50)
     const randomizeOrder = ref(true)
     return {
