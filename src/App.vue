@@ -57,7 +57,7 @@ export default defineComponent({
     const bgColor = ref('#000')
     const spacing = ref(150)
     const canvasSize = ref(450)
-    const imagesSize = ref(100)
+    const imagesSize = ref(50)
     const randomizeOrder = ref(true)
     return {
       urls,
