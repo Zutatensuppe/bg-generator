@@ -57,7 +57,7 @@ export default defineComponent({
     const bgColor = ref('#000')
     const spacing = ref(150)
     const canvasSize = ref(450)
-    const imagesSize = ref(40)
+    const imagesSize = ref(100)
     const randomizeOrder = ref(true)
     return {
       urls,
@@ -119,13 +119,27 @@ export default defineComponent({
           const width = parseInt(`${this.imagesSize}`, 10);
           const height = parseInt(`${this.imagesSize}`, 10);
           const angleInRadians = deg2rad(Math.random() * 360)
-          ctx.save();
-          ctx.translate(posX, posY);
-          ctx.rotate(angleInRadians);
-          ctx.drawImage(image, -width / 2, -height / 2, width, height);
-          ctx.rotate(-angleInRadians);
-          ctx.translate(-posX, -posY);
-          ctx.restore();
+
+          const poses = [
+            [posX, posY],
+            [posX + this.canvasSize, posY],
+            [posX - this.canvasSize, posY],
+            [posX, posY + this.canvasSize],
+            [posX, posY - this.canvasSize],
+            [posX + this.canvasSize, posY + this.canvasSize],
+            [posX - this.canvasSize, posY - this.canvasSize],
+            [posX + this.canvasSize, posY - this.canvasSize],
+            [posX - this.canvasSize, posY + this.canvasSize],
+          ]
+          for (let [posX, posY] of poses) {
+            ctx.save();
+            ctx.translate(posX, posY);
+            ctx.rotate(angleInRadians);
+            ctx.drawImage(image, -width / 2, -height / 2, width, height);
+            ctx.rotate(-angleInRadians);
+            ctx.translate(-posX, -posY);
+            ctx.restore();
+          }
 
           idx++
         }
