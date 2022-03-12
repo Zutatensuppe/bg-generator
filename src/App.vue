@@ -16,10 +16,11 @@
     <div class="panel-block">
       <table class="table">
         <tr><td>bgColor</td><td><input class="input is-small" type="color" v-model="bgColor" /></td><td></td></tr>
-        <tr><td>imagesSize</td><td><input class="input is-small" v-model="imagesSize" /></td><td> Images are sized so that their smallest side becomes this value. They retain their original aspect ratio.</td></tr>
+        <tr><td>imagesSize</td><td><input class="input is-small" type="number" v-model="imagesSize" /></td><td> Images are sized so that their smallest side becomes this value. They retain their original aspect ratio.</td></tr>
+        <tr><td>imagesAlpha</td><td><input class="input is-small" type="number" min="0" max="100" v-model="imageAlpha" /></td><td> Alpha of the images on the background (0 = Transparent, 100 = Opaque)</td></tr>
         <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td><td></td></tr>
-        <tr><td>canvasWidth</td><td><input class="input is-small" v-model="canvasWidth" /></td><td></td></tr>
-        <tr><td>canvasHeight</td><td><input class="input is-small" v-model="canvasHeight" /></td><td></td></tr>
+        <tr><td>canvasWidth</td><td><input class="input is-small" type="number" v-model="canvasWidth" /></td><td></td></tr>
+        <tr><td>canvasHeight</td><td><input class="input is-small" type="number" v-model="canvasHeight" /></td><td></td></tr>
         <tr><td>randomizeOrder</td><td><input type="checkbox" v-model="randomizeOrder" /></td><td></td></tr>
         <tr><td>randomizeAngle</td><td><input type="checkbox" v-model="randomizeAngle" /></td><td></td></tr>
         <tr><td>tryToWrapAround</td><td><input type="checkbox" v-model="tryToWrapAround" /></td><td> Create a background that can be repeated forever. For this to work, the canvas width/height should be equal, and a multiple of the spacing.</td></tr>
@@ -75,6 +76,7 @@ export default defineComponent({
     const randomizeOrder = ref(true)
     const randomizeAngle = ref(true)
     const tryToWrapAround = ref(false)
+    const imagesAlpha = ref(100)
 
     return {
       urls,
@@ -85,6 +87,7 @@ export default defineComponent({
       canvasWidth,
       canvasHeight,
       imagesSize,
+      imagesAlpha,
       randomizeOrder,
       randomizeAngle,
       tryToWrapAround,
@@ -114,6 +117,7 @@ export default defineComponent({
       }
 
       const imagesSize = parseInt(`${this.imagesSize}`, 10)
+      const imagesAlpha = parseInt(`${this.imagesAlpha}`, 10) / 100
 
       const spacing = parseInt(`${this.spacing}`, 10)
 
@@ -174,6 +178,7 @@ export default defineComponent({
           }
           for (let [posX, posY] of poses) {
             ctx.save();
+            ctx.globalAlpha = imagesAlpha;
             ctx.translate(posX, posY);
             ctx.rotate(angleInRadians);
             ctx.drawImage(image, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
