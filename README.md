@@ -1,12 +1,15 @@
 # bg-generator
 
-**Launch in dev mode:**
+**Live version**  
+https://bg.hyottoko.club/index.html
+
+**Launch in dev mode:**  
 ```
 npm install
 npm run vite
 ```
 
-**Build:**
+**Build:**  
 ```
 npm run vite -- build
 ```
