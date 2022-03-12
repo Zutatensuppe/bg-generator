@@ -113,9 +113,11 @@ export default defineComponent({
         return
       }
 
+      const imagesSize = parseInt(`${this.imagesSize}`, 10)
+
       const spacing = parseInt(`${this.spacing}`, 10)
-      const imageWidth = parseInt(`${this.imagesSize}`, 10);
-      const imageHeight = parseInt(`${this.imagesSize}`, 10);
+      const imageWidth = imagesSize
+      const imageHeight = imagesSize
 
       canvas.width = parseInt(`${this.canvasWidth}`, 10)
       canvas.height = parseInt(`${this.canvasHeight}`, 10)
@@ -130,7 +132,7 @@ export default defineComponent({
 
       let idx = 0
       let rows = 0
-      const posOffset = this.imagesSize
+      const posOffset = imagesSize
       let startY = this.tryToWrapAround ? 0 : -spacing
       let startX = this.tryToWrapAround ? 0 : -spacing
       for (let y = startY; y < canvas.height; y+=spacing) {
