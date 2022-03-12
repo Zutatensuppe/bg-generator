@@ -1,11 +1,6 @@
 <template>
-  <div
-    class="image-select"
-    :class="{'has-image': previewUrls.length, 'no-image': !previewUrls.length, droppable: droppable}"
-    @drop="onDrop"
-    @dragover="onDragover"
-    @dragleave="onDragleave">
-    <div class="drop-target"></div>
+  <div class="image-select" :class="{droppable: droppable}">
+    <div class="drop-target" @dragleave="onDragleave"></div>
     <div>
       <label>
         <input type="file" style="display: none" @change="onFileSelect" accept="image/*" />
@@ -26,6 +21,14 @@ export default defineComponent({
       previewUrls,
       droppable,
     }
+  },
+  mounted() {
+    window.addEventListener('dragover', this.onDragover)
+    window.addEventListener('drop', this.onDrop)
+  },
+  unmounted() {
+    window.removeEventListener('dragover', this.onDragover)
+    window.removeEventListener('drop', this.onDrop)
   },
   methods: {
     reset(): void {
@@ -69,6 +72,7 @@ export default defineComponent({
       return filteredItems
     },
     onDrop (evt: DragEvent): boolean {
+      console.log('onDrop')
       this.droppable = false
       const images = this.imagesFromDragEvt(evt)
       if (images.length === 0) {
@@ -90,6 +94,7 @@ export default defineComponent({
       return false
     },
     onDragover (evt: DragEvent): boolean {
+      console.log('onDragover')
       const images = this.imagesFromDragEvt(evt)
       if (images.length === 0) {
         return false
@@ -99,6 +104,7 @@ export default defineComponent({
       return false
     },
     onDragleave () {
+      console.log('onDragleave')
       this.droppable = false
     },
   },

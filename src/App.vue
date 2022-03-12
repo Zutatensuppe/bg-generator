@@ -1,23 +1,35 @@
 <template>
-  <div>
-    <image-select @selected="onImageSelected" ref="imageSelect" />
-    <textarea class="textarea" v-model="inputUrl" />
-    <span class="button is-small" @click="addUrlsStr">Add URL(s)</span>
-    <template v-for="(url, idx) in urls" :key="idx">
-      <img width="100" :src="urls[idx]" @click="removeUrl(idx)" />
-    </template>
-
-    <table>
-      <tr><td>bgColor</td><td><input class="input is-small" v-model="bgColor" /></td></tr>
-      <tr><td>imagesSize</td><td><input class="input is-small" v-model="imagesSize" /></td></tr>
-      <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td></tr>
-      <tr><td>canvasSize</td><td><input class="input is-small" v-model="canvasSize" /></td></tr>
-      <tr><td>randomizeOrder</td><td><input type="checkbox" v-model="randomizeOrder" /></td></tr>
-    </table>
-    <div>
+  <div class="card">
+    <div class="panel-block">
+      Add files by clicking <image-select @selected="onImageSelected" ref="imageSelect" />,
+      dragging images on the browser, or by adding urls to the textarea (urls in
+      textarea may not always work for all external urls).
+    </div>
+    <div class="fake-panel-block">
+      <textarea class="textarea is-small mb-1" v-model="inputUrl" />
+      <span class="button is-small" @click="addUrlsStr">Add URL(s)</span>
+    </div>
+    <div class="panel-block">
+      Click on an image to remove it.
+    </div>
+    <div class="panel-block">
+      <img v-for="(url, idx) in urls" :key="idx" width="100" :src="urls[idx]" @click="removeUrl(idx)" class="is-clickable mr-1" />
+    </div>
+    <div class="panel-block">
+      <table>
+        <tr><td>bgColor</td><td><input class="input is-small" type="color" v-model="bgColor" /></td></tr>
+        <tr><td>imagesSize</td><td><input class="input is-small" v-model="imagesSize" /></td></tr>
+        <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td></tr>
+        <tr><td>canvasSize</td><td><input class="input is-small" v-model="canvasSize" /></td></tr>
+        <tr><td>randomizeOrder</td><td><input type="checkbox" v-model="randomizeOrder" /></td></tr>
+        <tr><td>randomizeAngle</td><td><input type="checkbox" v-model="randomizeAngle" /></td></tr>
+      </table>
+    </div>
+    <div class="panel-block">
       <span class="button is-small" @click="generate">Generate!!!!</span>
     </div>
   </div>
+  <canvas ref="canvas"></canvas>
 </template>
 <script lang="ts">
 import ImageSelect from './ImageSelect.vue'
@@ -54,11 +66,12 @@ export default defineComponent({
   setup() {
     const urls = ref([] as string [])
     const inputUrl = ref('')
-    const bgColor = ref('#000')
+    const bgColor = ref('#000000')
     const spacing = ref(150)
     const canvasSize = ref(600) // 4x spacing makes things look ok
     const imagesSize = ref(50)
     const randomizeOrder = ref(true)
+    const randomizeAngle = ref(true)
     return {
       urls,
       inputUrl,
@@ -67,6 +80,7 @@ export default defineComponent({
       canvasSize,
       imagesSize,
       randomizeOrder,
+      randomizeAngle,
     }
   },
   methods: {
@@ -83,14 +97,22 @@ export default defineComponent({
     },
 
     async generate() {
-      const spacing = parseInt(`${this.spacing}`, 10)
-      const canvas = document.createElement('canvas')
-      canvas.width = parseInt(`${this.canvasSize}`, 10)
-      canvas.height = parseInt(`${this.canvasSize}`, 10)
+      const canvas = this.$refs.canvas as HTMLCanvasElement
+      if (!canvas) {
+        return
+      }
       const ctx = canvas.getContext('2d')
       if (!ctx) {
         return
       }
+
+      const spacing = parseInt(`${this.spacing}`, 10)
+      const imageWidth = parseInt(`${this.imagesSize}`, 10);
+      const imageHeight = parseInt(`${this.imagesSize}`, 10);
+
+      canvas.width = parseInt(`${this.canvasSize}`, 10)
+      canvas.height = parseInt(`${this.canvasSize}`, 10)
+
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -101,12 +123,13 @@ export default defineComponent({
 
       let idx = 0
       let rows = 0
+      const posOffset = spacing / 4
       for (let y = 0; y < canvas.height; y+=spacing) {
+        const posY = y + posOffset
+        const posXOffset = (rows % 2 === 0) ? (spacing / 2) : 0
+
         for (let x = 0; x < canvas.width; x+=spacing) {
-
-          const posX = x + (rows % 2 === 0 ? (spacing / 4 + spacing / 2) : (spacing / 4))
-          const posY = y + (spacing / 4)
-
+          const posX = x + posXOffset + posOffset
 
           if (idx%this.urls.length === 0) {
             if (this.randomizeOrder) {
@@ -115,10 +138,7 @@ export default defineComponent({
           }
 
           const image = images[idx%this.urls.length]
-
-          const width = parseInt(`${this.imagesSize}`, 10);
-          const height = parseInt(`${this.imagesSize}`, 10);
-          const angleInRadians = deg2rad(Math.random() * 360)
+          const angleInRadians = this.randomizeAngle ? deg2rad(Math.random() * 360) : 0
 
           const poses = [
             [posX, posY],
@@ -131,11 +151,12 @@ export default defineComponent({
             [posX + this.canvasSize, posY - this.canvasSize],
             [posX - this.canvasSize, posY + this.canvasSize],
           ]
+
           for (let [posX, posY] of poses) {
             ctx.save();
             ctx.translate(posX, posY);
             ctx.rotate(angleInRadians);
-            ctx.drawImage(image, -width / 2, -height / 2, width, height);
+            ctx.drawImage(image, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
             ctx.rotate(-angleInRadians);
             ctx.translate(-posX, -posY);
             ctx.restore();
@@ -145,9 +166,9 @@ export default defineComponent({
         }
         rows++
       }
-      console.log(canvas.toDataURL())
+      // console.log(canvas.toDataURL())
 
-      document.body.style.backgroundImage = `url(${canvas.toDataURL()})`
+      // document.body.style.backgroundImage = `url(${canvas.toDataURL()})`
     },
   },
 })

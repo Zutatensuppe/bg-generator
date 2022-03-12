@@ -1,22 +1,41 @@
 @import "bulma/css/bulma.css";
 
+$almostBlack: #222;
 html,
 body {
   height: 100%;
 }
 
+html,
+body,
+table {
+  font-family: monospace;
+}
+
 .image-select {
   border: solid 2px transparent;
 
-  &.has-image {
-
-  }
-
-  &.no-image {
-
-  }
-
   &.droppable {
-    border: dashed 2px #222;
+    .drop-target {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: dashed 2px $almostBlack;
+      z-index: 1000;
+    }
   }
+}
+
+canvas {
+  border: solid 2px $almostBlack;
+}
+
+.fake-panel-block {
+  padding: 0.5em 0.75em;
+}
+
+img {
+  border: solid 1px $almostBlack;
 }
