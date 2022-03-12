@@ -130,7 +130,7 @@ export default defineComponent({
 
       let idx = 0
       let rows = 0
-      const posOffset = spacing / 4
+      const posOffset = this.imagesSize
       let startY = this.tryToWrapAround ? 0 : -spacing
       let startX = this.tryToWrapAround ? 0 : -spacing
       for (let y = startY; y < canvas.height; y+=spacing) {
