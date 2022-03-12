@@ -17,7 +17,7 @@
       <table class="table">
         <tr><td>bgColor</td><td><input class="input is-small" type="color" v-model="bgColor" /></td><td></td></tr>
         <tr><td>imagesSize</td><td><input class="input is-small" type="number" v-model="imagesSize" /></td><td> Images are sized so that their smallest side becomes this value. They retain their original aspect ratio.</td></tr>
-        <tr><td>imagesAlpha</td><td><input class="input is-small" type="number" min="0" max="100" v-model="imageAlpha" /></td><td> Alpha of the images on the background (0 = Transparent, 100 = Opaque)</td></tr>
+        <tr><td>imagesAlpha</td><td><input class="input is-small" type="number" min="0" max="100" v-model="imagesAlpha" /></td><td> Alpha of the images on the background (0 = Transparent, 100 = Opaque)</td></tr>
         <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td><td></td></tr>
         <tr><td>canvasWidth</td><td><input class="input is-small" type="number" v-model="canvasWidth" /></td><td></td></tr>
         <tr><td>canvasHeight</td><td><input class="input is-small" type="number" v-model="canvasHeight" /></td><td></td></tr>
