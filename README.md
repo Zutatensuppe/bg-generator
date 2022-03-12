@@ -1,6 +1,7 @@
 # bg-generator
 
-**Live version**  
+**Live version:**  
+
 https://bg.hyottoko.club/index.html
 
 **Launch in dev mode:**  
