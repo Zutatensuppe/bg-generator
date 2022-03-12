@@ -2,27 +2,27 @@
   <div class="card">
     <div class="panel-block">
       Add files by clicking <image-select @selected="onImageSelected" ref="imageSelect" />,
-      dragging images on the browser, or by adding urls to the textarea (urls in
-      textarea may not always work for all external urls).
+      dragging images on the browser, or by <span class="button is-small" @click="wantToAddUrls = !wantToAddUrls">adding urls</span>.
     </div>
-    <div class="fake-panel-block">
+    <div class="fake-panel-block" v-if="wantToAddUrls">
+      Note: This may not always work for all external urls. <br />
       <textarea class="textarea is-small mb-1" v-model="inputUrl" />
       <span class="button is-small" @click="addUrlsStr">Add URL(s)</span>
     </div>
-    <div class="panel-block">
-      Click on an image to remove it.
-    </div>
-    <div class="panel-block">
+    <div class="fake-panel-block" v-if="urls.length">
+      Click on an image to remove it. <br />
       <img v-for="(url, idx) in urls" :key="idx" width="100" :src="urls[idx]" @click="removeUrl(idx)" class="is-clickable mr-1" />
     </div>
     <div class="panel-block">
-      <table>
-        <tr><td>bgColor</td><td><input class="input is-small" type="color" v-model="bgColor" /></td></tr>
-        <tr><td>imagesSize</td><td><input class="input is-small" v-model="imagesSize" /></td></tr>
-        <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td></tr>
-        <tr><td>canvasSize</td><td><input class="input is-small" v-model="canvasSize" /></td></tr>
-        <tr><td>randomizeOrder</td><td><input type="checkbox" v-model="randomizeOrder" /></td></tr>
-        <tr><td>randomizeAngle</td><td><input type="checkbox" v-model="randomizeAngle" /></td></tr>
+      <table class="table">
+        <tr><td>bgColor</td><td><input class="input is-small" type="color" v-model="bgColor" /></td><td></td></tr>
+        <tr><td>imagesSize</td><td><input class="input is-small" v-model="imagesSize" /></td><td></td></tr>
+        <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td><td></td></tr>
+        <tr><td>canvasWidth</td><td><input class="input is-small" v-model="canvasWidth" /></td><td></td></tr>
+        <tr><td>canvasHeight</td><td><input class="input is-small" v-model="canvasHeight" /></td><td></td></tr>
+        <tr><td>randomizeOrder</td><td><input type="checkbox" v-model="randomizeOrder" /></td><td></td></tr>
+        <tr><td>randomizeAngle</td><td><input type="checkbox" v-model="randomizeAngle" /></td><td></td></tr>
+        <tr><td>tryToWrapAround</td><td><input type="checkbox" v-model="tryToWrapAround" /></td><td> Create a background that can be repeated forever. For this to work, the canvas width/height should be equal, and a multiple of the spacing.</td></tr>
       </table>
     </div>
     <div class="panel-block">
@@ -65,22 +65,29 @@ export default defineComponent({
   },
   setup() {
     const urls = ref([] as string [])
+    const wantToAddUrls = ref(false)
     const inputUrl = ref('')
     const bgColor = ref('#000000')
     const spacing = ref(150)
-    const canvasSize = ref(600) // 4x spacing makes things look ok
+    const canvasWidth = ref(1280)
+    const canvasHeight = ref(720)
     const imagesSize = ref(50)
     const randomizeOrder = ref(true)
     const randomizeAngle = ref(true)
+    const tryToWrapAround = ref(false)
+
     return {
       urls,
+      wantToAddUrls,
       inputUrl,
       bgColor,
       spacing,
-      canvasSize,
+      canvasWidth,
+      canvasHeight,
       imagesSize,
       randomizeOrder,
       randomizeAngle,
+      tryToWrapAround,
     }
   },
   methods: {
@@ -110,8 +117,8 @@ export default defineComponent({
       const imageWidth = parseInt(`${this.imagesSize}`, 10);
       const imageHeight = parseInt(`${this.imagesSize}`, 10);
 
-      canvas.width = parseInt(`${this.canvasSize}`, 10)
-      canvas.height = parseInt(`${this.canvasSize}`, 10)
+      canvas.width = parseInt(`${this.canvasWidth}`, 10)
+      canvas.height = parseInt(`${this.canvasHeight}`, 10)
 
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -124,11 +131,13 @@ export default defineComponent({
       let idx = 0
       let rows = 0
       const posOffset = spacing / 4
-      for (let y = 0; y < canvas.height; y+=spacing) {
+      let startY = this.tryToWrapAround ? 0 : -spacing
+      let startX = this.tryToWrapAround ? 0 : -spacing
+      for (let y = startY; y < canvas.height; y+=spacing) {
         const posY = y + posOffset
         const posXOffset = (rows % 2 === 0) ? (spacing / 2) : 0
 
-        for (let x = 0; x < canvas.width; x+=spacing) {
+        for (let x = startX; x < canvas.width; x+=spacing) {
           const posX = x + posXOffset + posOffset
 
           if (idx%this.urls.length === 0) {
@@ -140,17 +149,19 @@ export default defineComponent({
           const image = images[idx%this.urls.length]
           const angleInRadians = this.randomizeAngle ? deg2rad(Math.random() * 360) : 0
 
-          const poses = [
-            [posX, posY],
-            [posX + this.canvasSize, posY],
-            [posX - this.canvasSize, posY],
-            [posX, posY + this.canvasSize],
-            [posX, posY - this.canvasSize],
-            [posX + this.canvasSize, posY + this.canvasSize],
-            [posX - this.canvasSize, posY - this.canvasSize],
-            [posX + this.canvasSize, posY - this.canvasSize],
-            [posX - this.canvasSize, posY + this.canvasSize],
-          ]
+          const poses = [[posX, posY]]
+          if (this.tryToWrapAround) {
+            poses.push(...[
+              [posX + canvas.width, posY],
+              [posX - canvas.width, posY],
+              [posX, posY + canvas.height],
+              [posX, posY - canvas.height],
+              [posX + canvas.width, posY + canvas.height],
+              [posX - canvas.width, posY - canvas.height],
+              [posX + canvas.width, posY - canvas.height],
+              [posX - canvas.width, posY + canvas.height],
+            ])
+          }
 
           for (let [posX, posY] of poses) {
             ctx.save();
@@ -169,6 +180,8 @@ export default defineComponent({
       // console.log(canvas.toDataURL())
 
       // document.body.style.backgroundImage = `url(${canvas.toDataURL()})`
+      // document.body.style.backgroundRepeat = 'repeat'
+      // document.body.style.height = `${canvas.height * 10}px`
     },
   },
 })
