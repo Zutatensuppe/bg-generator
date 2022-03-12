@@ -72,7 +72,7 @@ export default defineComponent({
       return filteredItems
     },
     onDrop (evt: DragEvent): boolean {
-      console.log('onDrop')
+      // console.log('onDrop')
       this.droppable = false
       const images = this.imagesFromDragEvt(evt)
       if (images.length === 0) {
@@ -94,7 +94,7 @@ export default defineComponent({
       return false
     },
     onDragover (evt: DragEvent): boolean {
-      console.log('onDragover')
+      // console.log('onDragover')
       const images = this.imagesFromDragEvt(evt)
       if (images.length === 0) {
         return false
@@ -104,7 +104,7 @@ export default defineComponent({
       return false
     },
     onDragleave () {
-      console.log('onDragleave')
+      // console.log('onDragleave')
       this.droppable = false
     },
   },

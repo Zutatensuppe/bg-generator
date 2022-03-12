@@ -16,7 +16,7 @@
     <div class="panel-block">
       <table class="table">
         <tr><td>bgColor</td><td><input class="input is-small" type="color" v-model="bgColor" /></td><td></td></tr>
-        <tr><td>imagesSize</td><td><input class="input is-small" v-model="imagesSize" /></td><td></td></tr>
+        <tr><td>imagesSize</td><td><input class="input is-small" v-model="imagesSize" /></td><td> Images are sized so that their smallest side becomes this value. They retain their original aspect ratio.</td></tr>
         <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td><td></td></tr>
         <tr><td>canvasWidth</td><td><input class="input is-small" v-model="canvasWidth" /></td><td></td></tr>
         <tr><td>canvasHeight</td><td><input class="input is-small" v-model="canvasHeight" /></td><td></td></tr>
@@ -116,8 +116,6 @@ export default defineComponent({
       const imagesSize = parseInt(`${this.imagesSize}`, 10)
 
       const spacing = parseInt(`${this.spacing}`, 10)
-      const imageWidth = imagesSize
-      const imageHeight = imagesSize
 
       canvas.width = parseInt(`${this.canvasWidth}`, 10)
       canvas.height = parseInt(`${this.canvasHeight}`, 10)
@@ -165,6 +163,15 @@ export default defineComponent({
             ])
           }
 
+          let imageWidth
+          let imageHeight
+          if (image.width < image.height) {
+            imageWidth = imagesSize
+            imageHeight = (imagesSize * image.height / image.width)
+          } else {
+            imageHeight = imagesSize
+            imageWidth = (imagesSize * image.width / image.height)
+          }
           for (let [posX, posY] of poses) {
             ctx.save();
             ctx.translate(posX, posY);
