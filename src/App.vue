@@ -23,6 +23,8 @@
         <tr><td>canvasHeight</td><td><input class="input is-small" type="number" v-model="canvasHeight" /></td><td></td></tr>
         <tr><td>randomizeOrder</td><td><input type="checkbox" v-model="randomizeOrder" /></td><td></td></tr>
         <tr><td>randomizeAngle</td><td><input type="checkbox" v-model="randomizeAngle" /></td><td></td></tr>
+        <tr><td>offsetHorizontal</td><td><input class="input is-small" type="number" v-model="offsetHorizontal" /></td><td></td></tr>
+        <tr><td>offsetVertical</td><td><input class="input is-small" type="number" v-model="offsetVertical" /></td><td></td></tr>
         <tr><td>tryToWrapAround</td><td><input type="checkbox" v-model="tryToWrapAround" /></td><td> Create a background that can be repeated forever. For this to work, the canvas width/height should be equal, and a multiple of the spacing.</td></tr>
       </table>
     </div>
@@ -78,6 +80,9 @@ export default defineComponent({
     const tryToWrapAround = ref(false)
     const imagesAlpha = ref(100)
 
+    const offsetHorizontal = ref(0)
+    const offsetVertical = ref(0)
+
     return {
       urls,
       wantToAddUrls,
@@ -91,6 +96,8 @@ export default defineComponent({
       randomizeOrder,
       randomizeAngle,
       tryToWrapAround,
+      offsetHorizontal,
+      offsetVertical,
     }
   },
   methods: {
@@ -124,6 +131,9 @@ export default defineComponent({
       canvas.width = parseInt(`${this.canvasWidth}`, 10)
       canvas.height = parseInt(`${this.canvasHeight}`, 10)
 
+      const offsetHorizontal = parseInt(`${this.offsetHorizontal}`, 10)
+      const offsetVertical = parseInt(`${this.offsetVertical}`, 10)
+
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -134,15 +144,14 @@ export default defineComponent({
 
       let idx = 0
       let rows = 0
-      const posOffset = imagesSize
       let startY = this.tryToWrapAround ? 0 : -spacing
       let startX = this.tryToWrapAround ? 0 : -spacing
       for (let y = startY; y < canvas.height; y+=spacing) {
-        const posY = y + posOffset
+        const posY = y + offsetVertical
         const posXOffset = (rows % 2 === 0) ? (spacing / 2) : 0
 
         for (let x = startX; x < canvas.width; x+=spacing) {
-          const posX = x + posXOffset + posOffset
+          const posX = x + posXOffset + offsetHorizontal
 
           if (idx%this.urls.length === 0) {
             if (this.randomizeOrder) {
