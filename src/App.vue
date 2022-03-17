@@ -73,7 +73,7 @@
         <tr>
           <td>indentEverySecondRow</td>
           <td><input type="checkbox" v-model="indentEverySecondRow" /></td>
-          <td> If checked, every second row will be indented by half the <code>offsetHorizontal</code></td>
+          <td> If checked, every second row will be indented by half the <code>spacingHorizontal</code></td>
         </tr>
         <tr>
           <td>tryToWrapAround</td>
