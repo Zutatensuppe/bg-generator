@@ -32,12 +32,12 @@
         </tr>
         <tr>
           <td>spacingHorizontal</td>
-          <td><input class="input is-small" v-model="spacingHorizontal" /></td>
+          <td><input class="input is-small" type="number" v-model="spacingHorizontal" /></td>
           <td></td>
         </tr>
         <tr>
           <td>spacingVertical</td>
-          <td><input class="input is-small" v-model="spacingVertical" /></td>
+          <td><input class="input is-small" type="number" v-model="spacingVertical" /></td>
           <td></td>
         </tr>
         <tr>
