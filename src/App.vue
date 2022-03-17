@@ -15,17 +15,71 @@
     </div>
     <div class="panel-block">
       <table class="table">
-        <tr><td>bgColor</td><td><input class="input is-small" type="color" v-model="bgColor" /></td><td></td></tr>
-        <tr><td>imagesSize</td><td><input class="input is-small" type="number" v-model="imagesSize" /></td><td> Images are sized so that their smallest side becomes this value. They retain their original aspect ratio.</td></tr>
-        <tr><td>imagesAlpha</td><td><input class="input is-small" type="number" min="0" max="100" v-model="imagesAlpha" /></td><td> Alpha of the images on the background (0 = Transparent, 100 = Opaque)</td></tr>
-        <tr><td>spacing</td><td><input class="input is-small" v-model="spacing" /></td><td></td></tr>
-        <tr><td>canvasWidth</td><td><input class="input is-small" type="number" v-model="canvasWidth" /></td><td></td></tr>
-        <tr><td>canvasHeight</td><td><input class="input is-small" type="number" v-model="canvasHeight" /></td><td></td></tr>
-        <tr><td>randomizeOrder</td><td><input type="checkbox" v-model="randomizeOrder" /></td><td></td></tr>
-        <tr><td>randomizeAngle</td><td><input type="checkbox" v-model="randomizeAngle" /></td><td></td></tr>
-        <tr><td>offsetHorizontal</td><td><input class="input is-small" type="number" v-model="offsetHorizontal" /></td><td></td></tr>
-        <tr><td>offsetVertical</td><td><input class="input is-small" type="number" v-model="offsetVertical" /></td><td></td></tr>
-        <tr><td>tryToWrapAround</td><td><input type="checkbox" v-model="tryToWrapAround" /></td><td> Create a background that can be repeated forever. For this to work, the canvas width/height should be equal, and a multiple of the spacing.</td></tr>
+        <tr>
+          <td>bgColor</td>
+          <td><input class="input is-small" type="color" v-model="bgColor" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>imagesSize</td>
+          <td><input class="input is-small" type="number" v-model="imagesSize" /></td>
+          <td> Images are sized so that their smallest side becomes this value. They retain their original aspect ratio.</td>
+        </tr>
+        <tr>
+          <td>imagesAlpha</td>
+          <td><input class="input is-small" type="number" min="0" max="100" v-model="imagesAlpha" /></td>
+          <td> Alpha of the images on the background (0 = Transparent, 100 = Opaque)</td>
+        </tr>
+        <tr>
+          <td>spacingHorizontal</td>
+          <td><input class="input is-small" v-model="spacingHorizontal" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>spacingVertical</td>
+          <td><input class="input is-small" v-model="spacingVertical" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>canvasWidth</td>
+          <td><input class="input is-small" type="number" v-model="canvasWidth" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>canvasHeight</td>
+          <td><input class="input is-small" type="number" v-model="canvasHeight" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>randomizeOrder</td>
+          <td><input type="checkbox" v-model="randomizeOrder" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>randomizeAngle</td>
+          <td><input type="checkbox" v-model="randomizeAngle" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>offsetHorizontal</td>
+          <td><input class="input is-small" type="number" v-model="offsetHorizontal" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>offsetVertical</td>
+          <td><input class="input is-small" type="number" v-model="offsetVertical" /></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>indentEverySecondRow</td>
+          <td><input type="checkbox" v-model="indentEverySecondRow" /></td>
+          <td> If checked, every second row will be indented by half the <code>offsetHorizontal</code></td>
+        </tr>
+        <tr>
+          <td>tryToWrapAround</td>
+          <td><input type="checkbox" v-model="tryToWrapAround" /></td>
+          <td> Create a background that can be repeated forever. For this to work, the canvas width/height should be equal, and a multiple of the spacing.</td>
+        </tr>
       </table>
     </div>
     <div class="panel-block">
@@ -71,13 +125,15 @@ export default defineComponent({
     const wantToAddUrls = ref(false)
     const inputUrl = ref('')
     const bgColor = ref('#000000')
-    const spacing = ref(150)
+    const spacingHorizontal = ref(150)
+    const spacingVertical = ref(150)
     const canvasWidth = ref(1280)
     const canvasHeight = ref(720)
     const imagesSize = ref(50)
     const randomizeOrder = ref(true)
     const randomizeAngle = ref(true)
     const tryToWrapAround = ref(false)
+    const indentEverySecondRow = ref(true)
     const imagesAlpha = ref(100)
 
     const offsetHorizontal = ref(0)
@@ -88,13 +144,15 @@ export default defineComponent({
       wantToAddUrls,
       inputUrl,
       bgColor,
-      spacing,
+      spacingHorizontal,
+      spacingVertical,
       canvasWidth,
       canvasHeight,
       imagesSize,
       imagesAlpha,
       randomizeOrder,
       randomizeAngle,
+      indentEverySecondRow,
       tryToWrapAround,
       offsetHorizontal,
       offsetVertical,
@@ -126,7 +184,8 @@ export default defineComponent({
       const imagesSize = parseInt(`${this.imagesSize}`, 10)
       const imagesAlpha = parseInt(`${this.imagesAlpha}`, 10) / 100
 
-      const spacing = parseInt(`${this.spacing}`, 10)
+      const spacingHorizontal = parseInt(`${this.spacingHorizontal}`, 10)
+      const spacingVertical = parseInt(`${this.spacingVertical}`, 10)
 
       canvas.width = parseInt(`${this.canvasWidth}`, 10)
       canvas.height = parseInt(`${this.canvasHeight}`, 10)
@@ -144,13 +203,16 @@ export default defineComponent({
 
       let idx = 0
       let rows = 0
-      let startY = this.tryToWrapAround ? 0 : -spacing
-      let startX = this.tryToWrapAround ? 0 : -spacing
-      for (let y = startY; y < canvas.height; y+=spacing) {
+      let startY = this.tryToWrapAround ? 0 : -spacingVertical
+      let startX = this.tryToWrapAround ? 0 : -spacingHorizontal
+      for (let y = startY; y < canvas.height; y+=spacingVertical) {
         const posY = y + offsetVertical
-        const posXOffset = (rows % 2 === 0) ? (spacing / 2) : 0
+        let posXOffset = 0
+        if (this.indentEverySecondRow) {
+          posXOffset = (rows % 2 === 0) ? (spacingHorizontal / 2) : 0
+        }
 
-        for (let x = startX; x < canvas.width; x+=spacing) {
+        for (let x = startX; x < canvas.width; x+=spacingHorizontal) {
           const posX = x + posXOffset + offsetHorizontal
 
           if (idx%this.urls.length === 0) {
