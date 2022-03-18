@@ -21,6 +21,11 @@
           <td></td>
         </tr>
         <tr>
+          <td>bgAlpha</td>
+          <td><input class="input is-small" type="number" min="0" max="100" v-model="bgAlpha" /></td>
+          <td> Alpha of the background (0 = Transparent, 100 = Opaque)</td>
+        </tr>
+        <tr>
           <td>imagesSize</td>
           <td><input class="input is-small" type="number" v-model="imagesSize" /></td>
           <td> Images are sized so that their smallest side becomes this value. They retain their original aspect ratio.</td>
@@ -59,6 +64,11 @@
           <td>randomizeAngle</td>
           <td><input type="checkbox" v-model="randomizeAngle" /></td>
           <td></td>
+        </tr>
+        <tr>
+          <td>fixedAngles</td>
+          <td><input class="input is-small" v-model="fixedAngles" /></td>
+          <td>(Only has an effect if <code>randomizeAngle</code> is not checked.) Comma separated angles, for example <code>0, 45, -90, 90</code>. They will be rotated through.</td>
         </tr>
         <tr>
           <td>offsetHorizontal</td>
@@ -132,9 +142,11 @@ export default defineComponent({
     const imagesSize = ref(50)
     const randomizeOrder = ref(true)
     const randomizeAngle = ref(true)
+    const fixedAngles = ref("0")
     const tryToWrapAround = ref(false)
     const indentEverySecondRow = ref(true)
     const imagesAlpha = ref(100)
+    const bgAlpha = ref(100)
 
     const offsetHorizontal = ref(0)
     const offsetVertical = ref(0)
@@ -144,6 +156,7 @@ export default defineComponent({
       wantToAddUrls,
       inputUrl,
       bgColor,
+      bgAlpha,
       spacingHorizontal,
       spacingVertical,
       canvasWidth,
@@ -152,6 +165,7 @@ export default defineComponent({
       imagesAlpha,
       randomizeOrder,
       randomizeAngle,
+      fixedAngles,
       indentEverySecondRow,
       tryToWrapAround,
       offsetHorizontal,
@@ -181,7 +195,15 @@ export default defineComponent({
         return
       }
 
+      const fixedAnglesList = this.fixedAngles.split(',')
+        .map(value => parseInt(value.trim(), 10))
+        .filter(value => !isNaN(value))
+      if (fixedAnglesList.length === 0) {
+        fixedAnglesList.push(0)
+      }
+
       const imagesSize = parseInt(`${this.imagesSize}`, 10)
+      const bgAlpha = parseInt(`${this.bgAlpha}`, 10) / 100
       const imagesAlpha = parseInt(`${this.imagesAlpha}`, 10) / 100
 
       const spacingHorizontal = parseInt(`${this.spacingHorizontal}`, 10)
@@ -193,14 +215,18 @@ export default defineComponent({
       const offsetHorizontal = parseInt(`${this.offsetHorizontal}`, 10)
       const offsetVertical = parseInt(`${this.offsetVertical}`, 10)
 
+      ctx.save();
+      ctx.globalAlpha = bgAlpha;
       ctx.fillStyle = this.bgColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.restore();
 
       const images = []
       for (let u of this.urls) {
         images.push(await anImg(u))
       }
 
+      let fixedAngleIdx = 0
       let idx = 0
       let rows = 0
       let startY = this.tryToWrapAround ? 0 : -spacingVertical
@@ -222,7 +248,12 @@ export default defineComponent({
           }
 
           const image = images[idx%this.urls.length]
-          const angleInRadians = this.randomizeAngle ? deg2rad(Math.random() * 360) : 0
+          const angleInDeg = this.randomizeAngle ? Math.random() * 360 : fixedAnglesList[fixedAngleIdx]
+          fixedAngleIdx+=1
+          if (fixedAngleIdx >= fixedAnglesList.length) {
+            fixedAngleIdx = 0
+          }
+          const angleInRadians = deg2rad(angleInDeg)
 
           const poses = [[posX, posY]]
           if (this.tryToWrapAround) {
