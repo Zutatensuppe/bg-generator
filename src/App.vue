@@ -126,6 +126,14 @@ function shuffle<T>(a: T[]): T[] {
     return a;
 }
 
+function angleDiff(a1: number, a2: number) {
+  let dif = Math.abs(a1 - a2) % 360;
+  if (dif > 180) {
+      dif = 360 - dif;
+  }
+  return dif
+}
+
 export default defineComponent({
   components: {
     ImageSelect,
@@ -226,6 +234,7 @@ export default defineComponent({
         images.push(await anImg(u))
       }
 
+      let angleInDeg = 0
       let fixedAngleIdx = 0
       let idx = 0
       let rows = 0
@@ -248,7 +257,15 @@ export default defineComponent({
           }
 
           const image = images[idx%this.urls.length]
-          const angleInDeg = this.randomizeAngle ? Math.random() * 360 : fixedAnglesList[fixedAngleIdx]
+          if (this.randomizeAngle) {
+            let angle
+            do {
+              angle = Math.random() * 360
+            } while (angleDiff(angle, angleInDeg) < 15)
+            angleInDeg = angle
+          } else {
+            angleInDeg = fixedAnglesList[fixedAngleIdx]
+          }
           fixedAngleIdx+=1
           if (fixedAngleIdx >= fixedAnglesList.length) {
             fixedAngleIdx = 0
